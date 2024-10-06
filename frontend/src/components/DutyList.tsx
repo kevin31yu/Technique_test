@@ -11,6 +11,7 @@ const DutyList: React.FC = () => {
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [nameError, setNameError] = useState<string | null>(null); // State for name validation error
 
   // Fetch duties when the component mounts
   useEffect(() => {
@@ -28,19 +29,37 @@ const DutyList: React.FC = () => {
     fetchDuties();
   }, []);
 
+  // Validate duty name
+  const validateName = (name: string): string | null => {
+    if (!name.trim()) {
+      return 'Duty name cannot be empty.';
+    }
+    if (name.length < 3) {
+      return 'Duty name must be at least 3 characters long.';
+    }
+    const invalidChars = /[^a-zA-Z0-9\s]/;
+    if (invalidChars.test(name)) {
+      return 'Duty name can only contain letters, numbers, and spaces.';
+    }
+    return null; // No validation error
+  };
+
   // Handle creating a new duty
   const handleCreate = async () => {
-    if (name.trim()) {
-      try {
-        const newDuty = await createDuty(name);
-        setDuties([...duties, newDuty]);
-        setName('');  // Clear input field after adding duty
-      } catch (error) {
-        setError('Failed to create duty.');
-        console.error('Error creating duty:', error);
-      }
-    } else {
-      alert('Duty name cannot be empty.');
+    const validationError = validateName(name);
+    if (validationError) {
+      setNameError(validationError); // Set validation error
+      return;
+    }
+
+    try {
+      const newDuty = await createDuty(name);
+      setDuties([...duties, newDuty]);
+      setName(''); // Clear input field after adding duty
+      setNameError(null); // Clear any validation errors after successful creation
+    } catch (error) {
+      setError('Failed to create duty.');
+      console.error('Error creating duty:', error);
     }
   };
 
@@ -48,9 +67,15 @@ const DutyList: React.FC = () => {
   const handleUpdate = async (id: number) => {
     const newName = prompt('Enter new name:');
     if (newName && newName.trim()) {
+      const validationError = validateName(newName);
+      if (validationError) {
+        alert(validationError); // Prompt validation errors for update
+        return;
+      }
+
       try {
         await updateDuty(id, newName);
-        setDuties(duties.map(duty => duty.id === id ? { ...duty, name: newName } : duty));
+        setDuties(duties.map(duty => (duty.id === id ? { ...duty, name: newName } : duty)));
       } catch (error) {
         setError('Failed to update duty.');
         console.error('Error updating duty:', error);
@@ -75,14 +100,20 @@ const DutyList: React.FC = () => {
     <div>
       <h1>Duty List</h1>
       {error && <p style={{ color: 'red' }}>{error}</p>}
-      <input 
-        type="text" 
-        value={name} 
-        onChange={e => setName(e.target.value)} 
-        placeholder="Enter duty name" 
+      
+      {/* Input for creating new duty */}
+      <input
+        type="text"
+        value={name}
+        onChange={e => setName(e.target.value)}
+        placeholder="Enter duty name"
       />
       <button onClick={handleCreate}>Add Duty</button>
-
+      
+      {/* Display validation errors */}
+      {nameError && <p style={{ color: 'red' }}>{nameError}</p>}
+      
+      {/* List of duties */}
       <ul>
         {duties.map(duty => (
           <li key={duty.id}>
