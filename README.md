@@ -12,7 +12,6 @@ Users can add, update, and delete tasks using the application.
   - [Frontend Setup](#frontend-setup)
   - [Backend Setup](#backend-setup)
 - [Environment Variables](#environment-variables)
-- [Deployment](#deployment)
 
 ## Technologies Used
 
