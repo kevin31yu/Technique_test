@@ -110,3 +110,19 @@ DB_PASSWORD=yourPasswordHere
 DB_NAME=todoList
 DB_PORT=5432
 ```
+
+#### Running Tests
+
+1. Make sure you are still in the `backend` directory:
+
+```bash
+cd backend
+```
+
+2. Run the tests using npm:
+
+```bash
+npm test
+```
+
+This will execute the tests defined in your backend code using Jest.

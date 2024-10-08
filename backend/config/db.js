@@ -45,19 +45,33 @@ const connectToDatabase = async () => {
   }
 };
 
-// Function to check the Duty table
 const checkIfTableExists = async (dbClient) => {
+  console.log('Checking if table exists...');
+
   const checkTableQuery = `
     SELECT EXISTS (
       SELECT FROM information_schema.tables 
       WHERE table_schema = 'public' 
-      AND table_name = 'duty'
+      AND table_name = 'duty' -- Ensure the case matches with the actual DB
     );
   `;
 
   try {
+    // Run the query
+    console.log("Client: " + dbClient); //[object object]
     const result = await dbClient.query(checkTableQuery);
-    return result.rows[0].exists;
+    console.log("Result: " + result); //undefined
+
+    // Ensure the result object exists and has rows
+    if (result && result.rows && result.rows.length > 0) {
+      // Log to inspect the first row's structure
+      console.log('First row:', result.rows[0]);
+
+      // Return the 'exists' value from the first row
+      return result.rows[0].exists;
+    } else {
+      return false; // Assume table does not exist if no rows are returned
+    }
   } catch (error) {
     console.error('Error checking table existence:', error);
     throw error;
@@ -83,7 +97,7 @@ const createDutyTable = async (dbClient) => {
   `;
 
   try {
-    await dbClient.query(createTableQuery); // Execute the query to create the table
+    const result = await dbClient.query(createTableQuery); // Execute the query to create the table
     console.log('Table created successfully.');
   } catch (error) {
     console.error('Error creating Duty table:', error);
