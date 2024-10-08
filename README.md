@@ -111,7 +111,7 @@ DB_NAME=todoList
 DB_PORT=5432
 ```
 
-#### Running Tests
+## Running Tests
 
 1. Make sure you are still in the `backend` directory:
 
